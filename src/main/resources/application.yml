@@ -1,0 +1,36 @@
+quarkus:
+  kubernetes-config:
+    enabled: true
+  devservices:
+    enabled: false
+  smallrye-openapi:
+    path: ${quarkus.http.root-path}/openapi  #openapi contract uri
+  swagger-ui:
+    enable: false
+    always-include: false
+  http:
+    root-path: /business-position-keeping/v1
+    port: 18080
+  datasource:
+    db-kind: singlestore
+  hibernate-orm:
+    dialect: org.hibernate.dialect.MySQL8Dialect
+
+org:
+  eclipse:
+    microprofile:
+      rest:
+        client:
+          propagateHeaders: Authorization,Request-ID,request-date,app-code,caller-name
+
+mp:
+  openapi:
+    scan:
+      disable: true
+
+info:
+  project:
+    artifact-id: ${quarkus.application.name}-v1
+    version: ${quarkus.application.version}
+    type: bs
+    app-group: appk

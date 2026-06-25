@@ -1,0 +1,480 @@
+openapi: '3.0.3'
+info:
+  title: API BS Position Keeping V1
+  description: >
+    Permite exponer las capacidades de cumplimiento regulatorio para órdenes de pago,
+    específicamente el registro del Id de cumplimiento y cálculo del ITF (Impuesto a las Transacciones Financieras).
+  version: '1.0.0'
+  contact:
+    name: APIS Position Keeping (APPK)
+  license:
+    name: Solo de uso interno para BCP
+servers:
+  - url: https://localhost:18080
+security:
+  - bearerAuth: [ ]
+externalDocs:
+  description: Para mas información de BS Position Keeping V1.
+  url: https://confluence.lima.bcp.com.pe/display/PositionKeepingV1
+tags:
+  - name: ITFEvaluation
+    description: Permite registrar el Id de cumplimiento regulatorio para una orden de pago e iniciar el cálculo del ITF.
+
+paths:
+  /position-keepings/itf/evaluate:
+    post:
+      tags:
+        - ITFEvaluation
+      summary: Registrar Id de cumplimiento regulatorio e iniciar cálculo del ITF.
+      operationId: evaluateItfCompliance
+      security:
+        - bearerAuth: [ ]
+      description: |
+        ### Acerca de la funcionalidad expuesta  
+        Registra el identificador de cumplimiento regulatorio para una **orden de pago** y ejecuta el **cálculo del ITF**.
+        - **Debe permitir extorno** cuando la transacción **no se completa**.
+        
+        
+          ### Precondiciones para el consumo de esta versión de la API
+        
+          No Aplica.
+        
+          ### Data de Prueba
+        
+          No Aplica.
+        
+          ### Query Parameters v&aacute;lidos en esta versi&oacute;n de la API
+        
+          No Aplica.
+        
+          ### Usos válidos de Query Parameters
+        
+          No Aplica
+        
+          ### Variantes válidas del Payload (Cuerpo del mensaje)
+        
+          No Aplica.
+        
+          ### Lista de Valores usadas en esta versión de la API
+        
+          Para mayor informacion acceder al link de confluence publico.
+        
+          ### Códigos de error usados en esta versión de la API
+        
+          | Código | HTTP Status | Descripción                                                                                           |
+          | ------ | ----------- | ----------------------------------------------------------------------------------------------------- |
+          | TL0003 | 400         | Los datos proporcionados no son validos.                                                              |
+          | TL0004 | 401         | La autenticación es requerida o falló.                                                                |
+          | TL0005 | 403         | Prohibido. No tiene permisos para consumir el API.                                                    | 
+          | TL0006 | 500         | Ocurrió un error en el servicio externo consumido.                                                    |
+          | TL0007 | 503         | Ocurrió un error en la comunicación con la base de datos.                                             |
+          | TL0008 | 501         | Los datos proporcionados no cumplen con los criterios para ser procesado.                             |
+          | TL0009 | 404         | No se encontro el recurso solicitado en la busqueda.                                                  |
+          | TL0010 | 503         | Ocurrió un error en el servicio externo consumido.                                                    |
+          | TL0011 | 429         | Ocurrió un error en el servicio externo consumido.                                                    |
+          | TL0012 | 504         | Demasiadas solicitudes. El cliente ha excedido el límite de solicitudes permitido.                    |
+          | TL9999 | 500         | Tiempo de espera agotado. El servidor no pudo responder a tiempo.                                     |
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/RequestDateHeader'
+        - $ref: '#/components/parameters/AppCodeHeader'
+        - $ref: '#/components/parameters/CallerNameHeader'
+        - $ref: '#/components/parameters/OcpApimSubscriptionKeyHeader'
+        - $ref: '#/components/parameters/ReversalFlagHeader'
+        - $ref: '#/components/parameters/UserCodeHeader'
+        - $ref: '#/components/parameters/ServerTerminalHeader'
+        - $ref: '#/components/parameters/OpnNumberHeader'
+        - $ref: '#/components/parameters/AgencyCodeHeader'
+        - $ref: '#/components/parameters/BranchOfficeCodeHeader'
+        - $ref: '#/components/parameters/OrgCodeHeader'
+        - $ref: '#/components/parameters/GuildAccountFlagHeader'
+      requestBody:
+        description: Datos necesarios para evaluar la posición ITF.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateItfRequest'
+      responses:
+        '200':
+          description: Operación procesada correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluateItfResponse'
+        '400':
+          description: Los datos proporcionados no son validos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '401':
+          description: La autenticación es requerida o falló.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '403':
+          description: Prohibido. No tiene permisos para consumir el API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '404':
+          description: Indica que el servidor no encuentra una representación actual para el recurso de destino.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '500':
+          description: Ocurrió un error en el servicio externo consumido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '503':
+          description: Ocurrió un error en la comunicación con la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '429':
+          description: Demasiadas solicitudes. El cliente ha excedido el límite de solicitudes permitido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '504':
+          description: Tiempo de espera agotado. El servidor no pudo responder a tiempo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+components:
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Token de Authorización.
+      required: true
+      schema:
+        type: string
+        example: Bearer.
+    RequestIdHeader:
+      name: Request-ID
+      in: header
+      required: true
+      description: Este campo es un valor estandar ya existente y sera usado identificador.
+      schema:
+        maxLength: 36
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        type: string
+      example: ed444333-f67e-44a5-ac96-e7189b82704d
+    RequestDateHeader:
+      name: request-date
+      in: header
+      description: Fecha de la petición.
+      required: true
+      schema:
+        maxLength: 29
+        pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4}([a-z]|[A-Z]|\d)?$
+        type: string
+        example: 2020-10-09T14:02:03.987-0700
+    AppCodeHeader:
+      name: app-code
+      in: header
+      description: Codigo de la aplicacion que invoca el servicio. Se debe usar el codigo de 2 caracteres que tienen asignada las aplicaciones, puede ser el canal.
+      required: true
+      schema:
+        maxLength: 2
+        minLength: 2
+        pattern: ^[0-9A-Z]*$
+        type: string
+        example: YP
+    CallerNameHeader:
+      name: caller-name
+      in: header
+      description: Nombre de la API que realiza la invocacion al servicio.
+      required: true
+      schema:
+        maxLength: 100
+        minLength: 5
+        pattern: ^[0-9a-zA-Z.-]*$
+        type: string
+        example: atlas-cross-services-loans-deposits-loan-loans-v2
+    OcpApimSubscriptionKeyHeader:
+      name: Ocp-Apim-Subscription-Key
+      in: header
+      required: true
+      description: Identificador de suscripcion, este campo es obtenido al momento al momento de la suscripcion.
+      schema:
+        maxLength: 32
+        minLength: 32
+        pattern: ^[a-z0-9]{32}$
+        type: string
+    UserCodeHeader:
+      name: user-code
+      in: header
+      description: Código del usuario que realiza la operación.
+      required: false
+      schema:
+        type: string
+        example: YPE001
+    ReversalFlagHeader:
+      name: reversal-flag
+      in: header
+      description: Indica si la operación es un extorno.
+      required: true
+      schema:
+        type: boolean
+        example: true
+    ServerTerminalHeader:
+      name: server-terminal
+      in: header
+      description: Código del terminal del servidor.
+      required: false
+      schema:
+        type: string
+        example: YP01
+    OpnNumberHeader:
+      name: opn-number
+      in: header
+      description: Número de operación.
+      required: true
+      schema:
+        type: string
+        example: "00011109"
+    AgencyCodeHeader:
+      name: agency-code
+      in: header
+      description: Código de la agencia.
+      required: true
+      schema:
+        type: string
+        example: "000"
+    BranchOfficeCodeHeader:
+      name: branch-office-code
+      in: header
+      description: Código de la oficina de sucursal.
+      required: true
+      schema:
+        type: string
+        example: "193"
+    OrgCodeHeader:
+      name: org-code
+      in: header
+      description: Código de la organización.
+      required: true
+      schema:
+        type: string
+        example: "10"
+    GuildAccountFlagHeader:
+      name: guild-account-flag
+      in: header
+      description: Indicador de cuenta gremial.
+      required: true
+      schema:
+        type: string
+        example: N
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Esquema de autenticación mediante token JWT emitido por el sistema de autorización del BCP.
+  schemas:
+    MeanInformation:
+      type: object
+      description: Información del medio de la transacción.
+      required:
+        - referenceId
+        - productDetail
+      properties:
+        referenceId:
+          type: string
+          description: Identificador de referencia. Solo valores numéricos de 13, 14 o 20 dígitos.
+          example: "19103449502044"
+          pattern: ^\d{13}$|^\d{14}$|^\d{20}$
+        productDetail:
+          $ref: '#/components/schemas/ProductDetail'
+    ProductDetail:
+      type: object
+      description: Detalle del producto asociado a la transacción.
+      required:
+        - product
+        - currency
+        - family
+      properties:
+        product:
+          $ref: '#/components/schemas/Product'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        family:
+          $ref: '#/components/schemas/Family'
+    Product:
+      type: object
+      description: Información del producto.
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Código del producto (e.g., 017 - ahorro, 016 - corriente, etc.).
+          example: "017"
+    Currency:
+      type: object
+      description: Información de la moneda.
+      required:
+        - alphaCode
+      properties:
+        alphaCode:
+          type: string
+          description: Código alfabético de la moneda (e.g., PEN - Soles, USD - Dólares, etc.).
+          example: "PEN"
+    Family:
+      type: object
+      description: Información de la familia del producto.
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Código de la familia del producto (e.g., 005 - ahorros, 004 - corriente, etc.).
+          example: "005"
+    EvaluateItfRequest:
+      type: object
+      description: Solicitud para evaluar una transacción ITF.
+      required:
+        - transactionType
+        - transferIndicatorType
+        - entries
+      properties:
+        transactionType:
+          type: string
+          enum:
+            - C
+            - A
+          description: |
+            Tipo de transacción:
+            - `C` - Cargo en cuenta.
+            - `A` - Abono en cuenta.
+          example: C
+        transferIndicatorType:
+          type: string
+          enum:
+            - CP
+            - TX
+          description: |
+            Indicador de transferencia:
+            - `CP` - Indica que la transacción es una transferencia entre cuentas del mismo cliente.
+            - `TX` - Indica que la transacción es una transferencia entre cuentas de diferentes clientes.
+          example: CP
+        entries:
+          type: array
+          description: Lista de entradas de la transacción.
+          minItems: 1
+          maxItems: 2
+          items:
+            type: object
+            required:
+              - meanInformation
+              - entryType
+              - utc
+              - amount
+            properties:
+              meanInformation:
+                $ref: '#/components/schemas/MeanInformation'
+              entryType:
+                type: string
+                enum:
+                  - CARGO
+                  - ABONO
+                description: |
+                  Tipo de asiento contable:
+                  - `CARGO` - Indica que la entrada es un cargo.
+                  - `ABONO` - Indica que la entrada es un abono.
+                example: CARGO
+              transferAnnotation:
+                type: string
+                description: Glosa de la transacciones .
+              utc:
+                type: string
+                description: Código UTC.
+                example: "4707"
+              amount:
+                type: number
+                description: Monto de la transacción.
+                example: 100
+    EvaluateItfResponse:
+      type: array
+      description: Respuesta a la solicitud de evaluación de transacción ITF.
+      items:
+        type: object
+        properties:
+          referenceId:
+            type: string
+            description: Identificador de referencia (Nuevo formato de cuenta - IISSSCF000012345678M).
+            example: "19103449502044"
+          itfRate:
+            type: number
+            description: Resultado del cálculo del ITF.
+            example: 0.75
+          itfAmount:
+            type: number
+            description: Valor del ITF aplicado.
+            example: 0.0005
+          finalBalancePdh:
+            type: number
+            description: Saldo final de la cuenta de pago de haberes después de aplicar el ITF.
+            example: 1000.00
+          applyItfIndicator:
+            type: boolean
+            description: Indicador del ITF aplicado.
+            example: true
+    ApiException:
+      title: ApiException
+      type: object
+      description: Datos del error de sistema.
+      properties:
+        code:
+          type: string
+          description: Código de error.
+          example: TL0003
+        description:
+          type: string
+          description: Descripción del error.
+          example: Los datos proporcionados no son válidos
+        errorType:
+          type: string
+          description: Tipo de error.
+          example: TECHNICAL
+        exceptionDetails:
+          type: array
+          description: Lista de detalles del error.
+          items:
+            $ref: '#/components/schemas/ApiExceptionDetail'
+        properties:
+          type: object
+          description: Propiedades adicionales del error.
+          additionalProperties: true
+    ApiExceptionDetail:
+      title: ApiExceptionDetail
+      type: object
+      description: Datos del error técnico.
+      properties:
+        code:
+          type: string
+          description: Código de error del detalle/proveedor.
+          example: MB0008
+        component:
+          type: string
+          description: Nombre del componente de falla.
+          example: PositionKeepings.ITF.Calculator
+        description:
+          type: string
+          description: Descripción del detalle.
+          example: La cuenta no existe o no está activa
+x-bcp-api-type: "BS"
+x-bcp-api-id: "position-keeping"
+
